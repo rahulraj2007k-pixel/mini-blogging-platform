@@ -1,4 +1,4 @@
- const AUTH_API = "https://mini-blogging-platform-br6r.onrender.com"
+const AUTH_API = "https://mini-blogging-platform-br6r.onrender.com/api/auth";
 
 
 // ===============================
