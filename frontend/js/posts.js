@@ -1,23 +1,21 @@
- // ==========================================
-// POSTS JAVASCRIPT
-// ==========================================
+ const BASE_URL = "https://mini-blogging-platform-br6r.onrender.com";
 
-const POSTS_API = "http://localhost:5000/api/posts";
-const COMMENTS_API = "http://localhost:5000/api/comments";
+const POSTS_API = `${BASE_URL}/api/posts`;
+const COMMENTS_API = `${BASE_URL}/api/comments`;
 
 
-// ==========================================
+// ===============================
 // GET TOKEN
-// ==========================================
+// ===============================
 
-function getAuthToken() {
+function getToken() {
     return localStorage.getItem("token");
 }
 
 
-// ==========================================
+// ===============================
 // CREATE POST
-// ==========================================
+// ===============================
 
 const createPostForm =
     document.getElementById("createPostForm");
@@ -35,96 +33,77 @@ if (createPostForm) {
             document.getElementById("content").value.trim();
 
         const category =
-            document.getElementById("category").value;
+            document.getElementById("category").value.trim();
+
+        const featuredImageElement =
+            document.getElementById("featuredImage");
+
+        const statusElement =
+            document.getElementById("status");
 
         const featuredImage =
-            document.getElementById("featuredImage").value.trim();
+            featuredImageElement
+                ? featuredImageElement.value.trim()
+                : "";
 
         const status =
-            document.getElementById("status").value;
+            statusElement
+                ? statusElement.value
+                : "draft";
 
         const message =
-            document.getElementById("postMessage");
+            document.getElementById("createPostMessage");
 
-        const token =
-            getAuthToken();
-
-
-        if (!token) {
-
-            message.textContent =
-                "Please login first.";
-
-            return;
-        }
-
-
-        message.textContent =
-            "Creating post...";
-
+        message.textContent = "Creating post...";
 
         try {
 
-            const response =
-                await fetch(POSTS_API, {
+            const response = await fetch(POSTS_API, {
 
-                    method: "POST",
+                method: "POST",
 
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${getToken()}`
+                },
 
-                    body: JSON.stringify({
-                        title,
-                        content,
-                        category,
-                        featuredImage,
-                        status
-                    })
+                body: JSON.stringify({
+                    title,
+                    content,
+                    category,
+                    featuredImage,
+                    status
+                })
 
-                });
+            });
 
-
-            const data =
-                await response.json();
-
+            const data = await response.json();
 
             if (!response.ok) {
 
                 message.textContent =
-                    data.message ||
-                    "Failed to create post.";
+                    data.message || "Failed to create post.";
 
                 return;
             }
 
-
             message.textContent =
                 "Post created successfully!";
 
-
             createPostForm.reset();
-
 
             setTimeout(() => {
 
-                window.location.href =
-                    "dashboard.html";
+                window.location.href = "dashboard.html";
 
-            }, 1000);
-
+            }, 700);
 
         } catch (error) {
 
-            console.error(
-                "Create Post Error:",
-                error
-            );
+            console.error("Create Post Error:", error);
 
             message.textContent =
-                "Server error. Please try again.";
-
+                "Unable to connect to server.";
         }
 
     });
@@ -132,132 +111,28 @@ if (createPostForm) {
 }
 
 
-// ==========================================
-// GET ALL PUBLISHED POSTS
-// ==========================================
-
-async function loadPosts() {
-
-    const postsContainer =
-        document.getElementById("postsContainer");
-
-    const loadingMessage =
-        document.getElementById("loadingMessage");
-
-    const noPostsMessage =
-        document.getElementById("noPostsMessage");
-
-    const errorMessage =
-        document.getElementById("errorMessage");
-
-
-    if (!postsContainer) {
-        return;
-    }
-
-
-    try {
-
-        loadingMessage.style.display =
-            "block";
-
-        noPostsMessage.style.display =
-            "none";
-
-        errorMessage.textContent =
-            "";
-
-
-        const response =
-            await fetch(POSTS_API);
-
-
-        const data =
-            await response.json();
-
-
-        loadingMessage.style.display =
-            "none";
-
-
-        if (!response.ok) {
-
-            errorMessage.textContent =
-                data.message ||
-                "Failed to load posts.";
-
-            return;
-        }
-
-
-        displayPosts(data.posts);
-
-    } catch (error) {
-
-        console.error(
-            "Load Posts Error:",
-            error
-        );
-
-
-        loadingMessage.style.display =
-            "none";
-
-        errorMessage.textContent =
-            "Unable to connect to server.";
-
-    }
-
-}
-
-
-// ==========================================
+// ===============================
 // DISPLAY POSTS
-// ==========================================
+// ===============================
 
-function displayPosts(posts) {
+function displayPosts(posts, container) {
 
-    const postsContainer =
-        document.getElementById("postsContainer");
-
-    const noPostsMessage =
-        document.getElementById("noPostsMessage");
-
-
-    if (!postsContainer) {
-        return;
-    }
-
-
-    postsContainer.innerHTML = "";
-
+    if (!container) return;
 
     if (!posts || posts.length === 0) {
 
-        noPostsMessage.style.display =
-            "block";
+        container.innerHTML = `
+            <div class="empty-state">
+                <h2>No posts found</h2>
+                <p>There are no blog posts available.</p>
+            </div>
+        `;
 
         return;
     }
 
 
-    noPostsMessage.style.display =
-        "none";
-
-
-    posts.forEach(post => {
-
-        const card =
-            document.createElement("div");
-
-
-        card.className =
-            "post-card";
-
-
-        // ==================================
-        // IMAGE
-        // ==================================
+    container.innerHTML = posts.map(post => {
 
         const imageHTML = post.featuredImage
             ? `
@@ -274,111 +149,140 @@ function displayPosts(posts) {
             `;
 
 
-        // ==================================
-        // AUTHOR
-        // ==================================
-
         const authorName =
-            post.author?.name ||
-            "Unknown Author";
+            post.author?.name || "Unknown Author";
 
 
-        // ==================================
-        // DATE
-        // ==================================
-
-        const date =
+        const postDate =
             post.createdAt
-                ? new Date(post.createdAt)
-                    .toLocaleDateString()
+                ? new Date(post.createdAt).toLocaleDateString()
                 : "";
 
 
-        // ==================================
-        // CARD HTML
-        // ==================================
+        return `
+            <article class="post-card">
 
-        card.innerHTML = `
+                ${imageHTML}
 
-            ${imageHTML}
+                <div class="post-card-content">
 
-            <div class="post-card-content">
+                    <span class="post-category">
+                        ${post.category}
+                    </span>
 
-                <span class="post-category">
-                    ${post.category}
-                </span>
+                    <h2>
+                        ${post.title}
+                    </h2>
 
-                <h3>
-                    ${post.title}
-                </h3>
+                    <p>
+                        ${post.content.substring(0, 150)}
+                        ${post.content.length > 150 ? "..." : ""}
+                    </p>
 
-                <p>
-                    ${getShortContent(post.content)}
-                </p>
+                    <div class="post-meta">
 
-                <div class="post-author">
-                    By ${authorName}
-                    <br>
-                    ${date}
+                        <span>
+                            By ${authorName}
+                        </span>
+
+                        <span>
+                            ${postDate}
+                        </span>
+
+                    </div>
+
+                    <a
+                        href="post.html?id=${post._id}"
+                        class="btn btn-primary"
+                    >
+                        Read More
+                    </a>
+
                 </div>
 
-                <a
-                    href="post.html?id=${post._id}"
-                    class="read-more"
-                >
-                    Read More →
-                </a>
-
-            </div>
-
+            </article>
         `;
 
-
-        postsContainer.appendChild(card);
-
-    });
-
+    }).join("");
 }
 
 
-// ==========================================
-// SHORT CONTENT
-// ==========================================
+// ===============================
+// LOAD PUBLISHED POSTS
+// ===============================
 
-function getShortContent(content) {
+async function loadPosts() {
 
-    if (!content) {
-        return "";
+    const postsContainer =
+        document.getElementById("postsContainer");
+
+    const loading =
+        document.getElementById("postsLoading");
+
+    const errorMessage =
+        document.getElementById("postsError");
+
+    if (!postsContainer) return;
+
+    if (loading) {
+        loading.style.display = "block";
+    }
+
+    if (errorMessage) {
+        errorMessage.textContent = "";
     }
 
 
-    if (content.length <= 120) {
-        return content;
+    try {
+
+        const response =
+            await fetch(POSTS_API);
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "Failed to load posts."
+            );
+        }
+
+
+        displayPosts(
+            data.posts,
+            postsContainer
+        );
+
+
+    } catch (error) {
+
+        console.error("Load Posts Error:", error);
+
+        if (errorMessage) {
+
+            errorMessage.textContent =
+                "Unable to load posts.";
+        }
+
+    } finally {
+
+        if (loading) {
+            loading.style.display = "none";
+        }
+
     }
-
-
-    return content.substring(0, 120) + "...";
-
 }
 
 
-// ==========================================
+// ===============================
 // SEARCH POSTS
-// ==========================================
+// ===============================
 
 async function searchPosts(keyword) {
 
-    const loadingMessage =
-        document.getElementById("loadingMessage");
-
-    const noPostsMessage =
-        document.getElementById("noPostsMessage");
-
-    const errorMessage =
-        document.getElementById("errorMessage");
-
-
-    if (!keyword.trim()) {
+    if (!keyword) {
 
         loadPosts();
 
@@ -386,17 +290,17 @@ async function searchPosts(keyword) {
     }
 
 
+    const postsContainer =
+        document.getElementById("postsContainer");
+
+    const errorMessage =
+        document.getElementById("postsError");
+
+
+    if (!postsContainer) return;
+
+
     try {
-
-        loadingMessage.style.display =
-            "block";
-
-        noPostsMessage.style.display =
-            "none";
-
-        errorMessage.textContent =
-            "";
-
 
         const response =
             await fetch(
@@ -408,45 +312,37 @@ async function searchPosts(keyword) {
             await response.json();
 
 
-        loadingMessage.style.display =
-            "none";
-
-
         if (!response.ok) {
 
-            errorMessage.textContent =
-                data.message ||
-                "Search failed.";
-
-            return;
+            throw new Error(
+                data.message || "Search failed."
+            );
         }
 
 
-        displayPosts(data.posts);
+        displayPosts(
+            data.posts,
+            postsContainer
+        );
 
 
     } catch (error) {
 
-        console.error(
-            "Search Error:",
-            error
-        );
+        console.error("Search Error:", error);
 
+        if (errorMessage) {
 
-        loadingMessage.style.display =
-            "none";
-
-        errorMessage.textContent =
-            "Search failed. Please try again.";
+            errorMessage.textContent =
+                "Search failed.";
+        }
 
     }
-
 }
 
 
-// ==========================================
+// ===============================
 // CATEGORY FILTER
-// ==========================================
+// ===============================
 
 async function filterByCategory(category) {
 
@@ -458,27 +354,17 @@ async function filterByCategory(category) {
     }
 
 
-    const loadingMessage =
-        document.getElementById("loadingMessage");
-
-    const noPostsMessage =
-        document.getElementById("noPostsMessage");
+    const postsContainer =
+        document.getElementById("postsContainer");
 
     const errorMessage =
-        document.getElementById("errorMessage");
+        document.getElementById("postsError");
+
+
+    if (!postsContainer) return;
 
 
     try {
-
-        loadingMessage.style.display =
-            "block";
-
-        noPostsMessage.style.display =
-            "none";
-
-        errorMessage.textContent =
-            "";
-
 
         const response =
             await fetch(
@@ -490,69 +376,51 @@ async function filterByCategory(category) {
             await response.json();
 
 
-        loadingMessage.style.display =
-            "none";
-
-
         if (!response.ok) {
 
-            errorMessage.textContent =
-                data.message ||
-                "Category filter failed.";
-
-            return;
+            throw new Error(
+                data.message || "Category filter failed."
+            );
         }
 
 
-        displayPosts(data.posts);
+        displayPosts(
+            data.posts,
+            postsContainer
+        );
 
 
     } catch (error) {
 
         console.error(
-            "Category Error:",
+            "Category Filter Error:",
             error
         );
 
+        if (errorMessage) {
 
-        loadingMessage.style.display =
-            "none";
-
-        errorMessage.textContent =
-            "Category filter failed.";
+            errorMessage.textContent =
+                "Category filter failed.";
+        }
 
     }
-
 }
 
 
-// ==========================================
-// GET SINGLE POST
-// ==========================================
+// ===============================
+// LOAD SINGLE POST
+// ===============================
 
 async function loadSinglePost() {
 
     const postContainer =
-        document.getElementById("singlePost");
+        document.getElementById("singlePostContainer");
 
-
-    if (!postContainer) {
-        return;
-    }
-
-
-    const loading =
-        document.getElementById("postLoading");
-
-    const errorMessage =
-        document.getElementById("postError");
+    if (!postContainer) return;
 
 
     const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
+        new URLSearchParams(window.location.search);
 
     const postId =
         params.get("id");
@@ -560,11 +428,11 @@ async function loadSinglePost() {
 
     if (!postId) {
 
-        loading.style.display =
-            "none";
-
-        errorMessage.textContent =
-            "Post ID is missing.";
+        postContainer.innerHTML = `
+            <div class="error-message">
+                Post ID is missing.
+            </div>
+        `;
 
         return;
     }
@@ -573,30 +441,79 @@ async function loadSinglePost() {
     try {
 
         const response =
-            await fetch(
-                `${POSTS_API}/${postId}`
-            );
+            await fetch(`${POSTS_API}/${postId}`);
 
 
         const data =
             await response.json();
 
 
-        loading.style.display =
-            "none";
-
-
         if (!response.ok) {
 
-            errorMessage.textContent =
-                data.message ||
-                "Post not found.";
-
-            return;
+            throw new Error(
+                data.message || "Post not found."
+            );
         }
 
 
-        displaySinglePost(data.post);
+        const post =
+            data.post;
+
+
+        const imageHTML = post.featuredImage
+            ? `
+                <img
+                    src="${post.featuredImage}"
+                    alt="${post.title}"
+                    class="single-post-image"
+                >
+            `
+            : "";
+
+
+        const authorName =
+            post.author?.name || "Unknown Author";
+
+
+        const postDate =
+            post.createdAt
+                ? new Date(post.createdAt).toLocaleDateString()
+                : "";
+
+
+        postContainer.innerHTML = `
+
+            <article class="single-post">
+
+                ${imageHTML}
+
+                <span class="post-category">
+                    ${post.category}
+                </span>
+
+                <h1>
+                    ${post.title}
+                </h1>
+
+                <div class="single-post-meta">
+
+                    <span>
+                        By ${authorName}
+                    </span>
+
+                    <span>
+                        ${postDate}
+                    </span>
+
+                </div>
+
+                <div class="single-post-content">
+                    ${post.content}
+                </div>
+
+            </article>
+        `;
+
 
         loadComments(postId);
 
@@ -604,123 +521,40 @@ async function loadSinglePost() {
     } catch (error) {
 
         console.error(
-            "Single Post Error:",
+            "Load Single Post Error:",
             error
         );
 
-
-        loading.style.display =
-            "none";
-
-        errorMessage.textContent =
-            "Unable to load post.";
+        postContainer.innerHTML = `
+            <div class="error-message">
+                Unable to load post.
+            </div>
+        `;
 
     }
-
 }
 
 
-// ==========================================
-// DISPLAY SINGLE POST
-// ==========================================
-
-function displaySinglePost(post) {
-
-    document.getElementById("postTitle")
-        .textContent =
-        post.title;
-
-
-    document.getElementById("postCategory")
-        .textContent =
-        post.category;
-
-
-    document.getElementById("postContent")
-        .textContent =
-        post.content;
-
-
-    const image =
-        document.getElementById("postImage");
-
-
-    if (post.featuredImage) {
-
-        image.src =
-            post.featuredImage;
-
-        image.style.display =
-            "block";
-
-    } else {
-
-        image.style.display =
-            "none";
-
-    }
-
-
-    const author =
-        post.author?.name ||
-        "Unknown Author";
-
-
-    const email =
-        post.author?.email ||
-        "";
-
-
-    document.getElementById("postAuthor")
-        .textContent =
-        author;
-
-
-    document.getElementById("postAuthorEmail")
-        .textContent =
-        email;
-
-
-    if (post.createdAt) {
-
-        document.getElementById("postDate")
-            .textContent =
-            new Date(post.createdAt)
-                .toLocaleString();
-
-    }
-
-}
-
-
-// ==========================================
+// ===============================
 // LOAD COMMENTS
-// ==========================================
+// ===============================
 
 async function loadComments(postId) {
 
     const commentsContainer =
-        document.getElementById(
-            "commentsContainer"
-        );
+        document.getElementById("commentsContainer");
 
-    const noCommentsMessage =
-        document.getElementById(
-            "noCommentsMessage"
-        );
+    const commentsCount =
+        document.getElementById("commentsCount");
 
 
-    if (!commentsContainer) {
-        return;
-    }
+    if (!commentsContainer) return;
 
 
     try {
 
         const response =
-            await fetch(
-                `${COMMENTS_API}/${postId}`
-            );
+            await fetch(`${COMMENTS_API}/${postId}`);
 
 
         const data =
@@ -728,138 +562,301 @@ async function loadComments(postId) {
 
 
         if (!response.ok) {
+
+            throw new Error(
+                data.message || "Failed to load comments."
+            );
+        }
+
+
+        if (commentsCount) {
+
+            commentsCount.textContent =
+                data.count || 0;
+        }
+
+
+        if (!data.comments || data.comments.length === 0) {
+
+            commentsContainer.innerHTML = `
+                <p class="no-comments">
+                    No comments yet.
+                </p>
+            `;
+
             return;
         }
 
 
         commentsContainer.innerHTML =
-            "";
+            data.comments.map(comment => {
+
+                const authorName =
+                    comment.author?.name ||
+                    "Unknown User";
 
 
-        if (
-            !data.comments ||
-            data.comments.length === 0
-        ) {
-
-            noCommentsMessage.style.display =
-                "block";
-
-            return;
-        }
+                const commentDate =
+                    comment.createdAt
+                        ? new Date(
+                            comment.createdAt
+                        ).toLocaleDateString()
+                        : "";
 
 
-        noCommentsMessage.style.display =
-            "none";
+                return `
+                    <div class="comment">
 
+                        <div class="comment-header">
 
-        data.comments.forEach(comment => {
+                            <strong>
+                                ${authorName}
+                            </strong>
 
-            const commentDiv =
-                document.createElement("div");
+                            <span>
+                                ${commentDate}
+                            </span>
 
+                        </div>
 
-            commentDiv.className =
-                "comment";
+                        <p>
+                            ${comment.text}
+                        </p>
 
+                    </div>
+                `;
 
-            const author =
-                comment.author?.name ||
-                "User";
-
-
-            const date =
-                comment.createdAt
-                    ? new Date(comment.createdAt)
-                        .toLocaleString()
-                    : "";
-
-
-            commentDiv.innerHTML = `
-
-                <div class="comment-author">
-                    ${author}
-                </div>
-
-                <div class="comment-date">
-                    ${date}
-                </div>
-
-                <div class="comment-text">
-                    ${comment.text}
-                </div>
-
-            `;
-
-
-            commentsContainer.appendChild(
-                commentDiv
-            );
-
-        });
+            }).join("");
 
 
     } catch (error) {
 
         console.error(
-            "Comments Error:",
+            "Load Comments Error:",
             error
         );
 
+        commentsContainer.innerHTML = `
+            <p class="error-message">
+                Unable to load comments.
+            </p>
+        `;
     }
+}
+
+
+// ===============================
+// ADD COMMENT
+// ===============================
+
+const commentForm =
+    document.getElementById("commentForm");
+
+if (commentForm) {
+
+    commentForm.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+
+        if (!getToken()) {
+
+            alert("Please login to comment.");
+
+            window.location.href = "login.html";
+
+            return;
+        }
+
+
+        const params =
+            new URLSearchParams(window.location.search);
+
+        const postId =
+            params.get("id");
+
+
+        const commentInput =
+            document.getElementById("commentText");
+
+        const commentMessage =
+            document.getElementById("commentMessage");
+
+
+        const text =
+            commentInput.value.trim();
+
+
+        if (!text) {
+
+            commentMessage.textContent =
+                "Please enter a comment.";
+
+            return;
+        }
+
+
+        commentMessage.textContent =
+            "Adding comment...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${COMMENTS_API}/${postId}`,
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization":
+                                `Bearer ${getToken()}`
+                        },
+
+                        body: JSON.stringify({
+                            text
+                        })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                commentMessage.textContent =
+                    data.message ||
+                    "Failed to add comment.";
+
+                return;
+            }
+
+
+            commentInput.value = "";
+
+            commentMessage.textContent =
+                "Comment added successfully!";
+
+
+            loadComments(postId);
+
+
+        } catch (error) {
+
+            console.error(
+                "Add Comment Error:",
+                error
+            );
+
+            commentMessage.textContent =
+                "Unable to connect to server.";
+        }
+
+    });
 
 }
 
 
-// ==========================================
-// ADD COMMENT
-// ==========================================
+// ===============================
+// LOAD EDIT POST
+// ===============================
 
-const commentForm =
-    document.getElementById(
-        "commentForm"
-    );
+async function loadEditPost() {
 
+    const editForm =
+        document.getElementById("editPostForm");
 
-if (commentForm) {
-
-    const token =
-        getAuthToken();
+    if (!editForm) return;
 
 
-    const commentFormContainer =
-        document.getElementById(
-            "commentFormContainer"
+    const params =
+        new URLSearchParams(window.location.search);
+
+    const postId =
+        params.get("id");
+
+
+    if (!postId) return;
+
+
+    try {
+
+        const response =
+            await fetch(`${POSTS_API}/${postId}`);
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message || "Post not found."
+            );
+        }
+
+
+        const post =
+            data.post;
+
+
+        document.getElementById("title").value =
+            post.title || "";
+
+
+        document.getElementById("content").value =
+            post.content || "";
+
+
+        document.getElementById("category").value =
+            post.category || "";
+
+
+        const imageInput =
+            document.getElementById("featuredImage");
+
+        if (imageInput) {
+
+            imageInput.value =
+                post.featuredImage || "";
+        }
+
+
+        const statusInput =
+            document.getElementById("status");
+
+        if (statusInput) {
+
+            statusInput.value =
+                post.status || "draft";
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Load Edit Post Error:",
+            error
         );
-
-
-    const loginCommentMessage =
-        document.getElementById(
-            "loginCommentMessage"
-        );
-
-
-    if (token) {
-
-        commentFormContainer.style.display =
-            "block";
-
-        loginCommentMessage.style.display =
-            "none";
-
-    } else {
-
-        commentFormContainer.style.display =
-            "none";
-
-        loginCommentMessage.style.display =
-            "block";
-
     }
+}
 
 
-    commentForm.addEventListener(
-        "submit",
-        async (event) => {
+// ===============================
+// UPDATE POST
+// ===============================
+
+if (document.getElementById("editPostForm")) {
+
+    document
+        .getElementById("editPostForm")
+        .addEventListener("submit", async (event) => {
 
             event.preventDefault();
 
@@ -869,224 +866,58 @@ if (commentForm) {
                     window.location.search
                 );
 
-
             const postId =
                 params.get("id");
 
 
-            const text =
+            const title =
+                document.getElementById("title")
+                    .value.trim();
+
+
+            const content =
+                document.getElementById("content")
+                    .value.trim();
+
+
+            const category =
+                document.getElementById("category")
+                    .value.trim();
+
+
+            const featuredImageElement =
                 document.getElementById(
-                    "commentText"
-                ).value.trim();
+                    "featuredImage"
+                );
+
+
+            const statusElement =
+                document.getElementById("status");
+
+
+            const featuredImage =
+                featuredImageElement
+                    ? featuredImageElement.value.trim()
+                    : "";
+
+
+            const status =
+                statusElement
+                    ? statusElement.value
+                    : "draft";
 
 
             const message =
                 document.getElementById(
-                    "commentMessage"
+                    "editPostMessage"
                 );
 
 
-            if (!postId) {
-
-                message.textContent =
-                    "Post ID is missing.";
-
-                return;
-            }
-
-
-            if (!text) {
-
-                message.textContent =
-                    "Please write a comment.";
-
-                return;
-            }
+            message.textContent =
+                "Updating post...";
 
 
             try {
-
-                message.textContent =
-                    "Adding comment...";
-
-
-                const response =
-                    await fetch(
-                        `${COMMENTS_API}/${postId}`,
-                        {
-
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-
-                            },
-
-                            body: JSON.stringify({
-                                text
-                            })
-
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    message.textContent =
-                        data.message ||
-                        "Failed to add comment.";
-
-                    return;
-                }
-
-
-                message.textContent =
-                    "Comment added successfully!";
-
-
-                document.getElementById(
-                    "commentText"
-                ).value = "";
-
-
-                loadComments(postId);
-
-
-            } catch (error) {
-
-                console.error(
-                    "Add Comment Error:",
-                    error
-                );
-
-
-                message.textContent =
-                    "Unable to add comment.";
-
-            }
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// EDIT POST
-// ==========================================
-
-const editPostForm =
-    document.getElementById(
-        "editPostForm"
-    );
-
-
-if (editPostForm) {
-
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
-    const postId =
-        params.get("id");
-
-
-    const token =
-        getAuthToken();
-
-
-    const message =
-        document.getElementById(
-            "editPostMessage"
-        );
-
-
-    if (!token) {
-
-        message.textContent =
-            "Please login first.";
-
-    }
-
-
-    if (postId && token) {
-
-        loadPostForEdit(postId);
-
-    }
-
-
-    editPostForm.addEventListener(
-        "submit",
-        async (event) => {
-
-            event.preventDefault();
-
-
-            if (!token) {
-
-                message.textContent =
-                    "Please login first.";
-
-                return;
-            }
-
-
-            if (!postId) {
-
-                message.textContent =
-                    "Post ID is missing.";
-
-                return;
-            }
-
-
-            const title =
-                document.getElementById(
-                    "title"
-                ).value.trim();
-
-
-            const content =
-                document.getElementById(
-                    "content"
-                ).value.trim();
-
-
-            const category =
-                document.getElementById(
-                    "category"
-                ).value;
-
-
-            const featuredImage =
-                document.getElementById(
-                    "featuredImage"
-                ).value.trim();
-
-
-            const status =
-                document.getElementById(
-                    "status"
-                ).value;
-
-
-            try {
-
-                message.textContent =
-                    "Updating post...";
-
 
                 const response =
                     await fetch(
@@ -1101,8 +932,7 @@ if (editPostForm) {
                                     "application/json",
 
                                 "Authorization":
-                                    `Bearer ${token}`
-
+                                    `Bearer ${getToken()}`
                             },
 
                             body: JSON.stringify({
@@ -1142,133 +972,35 @@ if (editPostForm) {
                     window.location.href =
                         "dashboard.html";
 
-                }, 1000);
+                }, 700);
 
 
             } catch (error) {
 
                 console.error(
-                    "Update Error:",
+                    "Update Post Error:",
                     error
                 );
 
-
                 message.textContent =
-                    "Unable to update post.";
-
+                    "Unable to connect to server.";
             }
 
-        }
-    );
+        });
 
 }
 
 
-// ==========================================
-// LOAD POST FOR EDIT
-// ==========================================
+// ===============================
+// LOAD MY POSTS
+// ===============================
 
-async function loadPostForEdit(postId) {
+async function loadMyPosts() {
 
-    try {
-
-        const response =
-            await fetch(
-                `${POSTS_API}/${postId}`
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            document.getElementById(
-                "editPostMessage"
-            ).textContent =
-                data.message ||
-                "Post not found.";
-
-            return;
-        }
-
-
-        const post =
-            data.post;
-
-
-        document.getElementById(
-            "title"
-        ).value =
-            post.title || "";
-
-
-        document.getElementById(
-            "content"
-        ).value =
-            post.content || "";
-
-
-        document.getElementById(
-            "category"
-        ).value =
-            post.category || "";
-
-
-        document.getElementById(
-            "featuredImage"
-        ).value =
-            post.featuredImage || "";
-
-
-        document.getElementById(
-            "status"
-        ).value =
-            post.status || "published";
-
-
-    } catch (error) {
-
-        console.error(
-            "Load Edit Post Error:",
-            error
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// DASHBOARD - GET MY POSTS
-// ==========================================
-
-async function loadDashboardPosts() {
-
-    const container =
+    const postsContainer =
         document.getElementById(
             "myPostsContainer"
         );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    const token =
-        getAuthToken();
-
-
-    if (!token) {
-
-        window.location.href =
-            "login.html";
-
-        return;
-    }
-
 
     const loading =
         document.getElementById(
@@ -1280,15 +1012,19 @@ async function loadDashboardPosts() {
             "dashboardError"
         );
 
+    const noPosts =
+        document.getElementById("noMyPosts");
+
+
+    if (!postsContainer) return;
+
+
+    if (loading) {
+        loading.style.display = "block";
+    }
+
 
     try {
-
-        loading.style.display =
-            "block";
-
-        errorMessage.textContent =
-            "";
-
 
         const response =
             await fetch(
@@ -1297,7 +1033,7 @@ async function loadDashboardPosts() {
 
                     headers: {
                         "Authorization":
-                            `Bearer ${token}`
+                            `Bearer ${getToken()}`
                     }
 
                 }
@@ -1308,218 +1044,237 @@ async function loadDashboardPosts() {
             await response.json();
 
 
-        loading.style.display =
-            "none";
-
-
         if (!response.ok) {
 
-            errorMessage.textContent =
+            throw new Error(
                 data.message ||
-                "Failed to load your posts.";
+                "Failed to load your posts."
+            );
+        }
+
+
+        if (data.posts.length === 0) {
+
+            postsContainer.innerHTML = "";
+
+            if (noPosts) {
+                noPosts.style.display = "block";
+            }
 
             return;
         }
 
 
-        dashboardPosts =
-            data.posts || [];
+        if (noPosts) {
+            noPosts.style.display = "none";
+        }
 
 
         displayDashboardPosts(
-            dashboardPosts
+            data.posts,
+            postsContainer
         );
 
 
     } catch (error) {
 
         console.error(
-            "Dashboard Error:",
+            "Load My Posts Error:",
             error
         );
 
+        if (errorMessage) {
 
-        loading.style.display =
-            "none";
+            errorMessage.textContent =
+                "Unable to load your posts.";
+        }
 
-        errorMessage.textContent =
-            "Unable to load dashboard.";
+    } finally {
+
+        if (loading) {
+            loading.style.display = "none";
+        }
 
     }
-
 }
 
 
-// ==========================================
-// DASHBOARD POSTS STORAGE
-// ==========================================
-
-let dashboardPosts = [];
-
-
-// ==========================================
+// ===============================
 // DISPLAY DASHBOARD POSTS
-// ==========================================
+// ===============================
 
-function displayDashboardPosts(posts) {
-
-    const container =
-        document.getElementById(
-            "myPostsContainer"
-        );
-
-
-    const noPosts =
-        document.getElementById(
-            "noMyPosts"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
+function displayDashboardPosts(
+    posts,
+    container
+) {
 
     container.innerHTML =
-        "";
+        posts.map(post => {
+
+            const statusClass =
+                post.status === "published"
+                    ? "published"
+                    : "draft";
 
 
-    if (!posts || posts.length === 0) {
-
-        noPosts.style.display =
-            "block";
-
-        return;
-    }
-
-
-    noPosts.style.display =
-        "none";
-
-
-    posts.forEach(post => {
-
-        const card =
-            document.createElement("div");
+            const imageHTML = post.featuredImage
+                ? `
+                    <img
+                        src="${post.featuredImage}"
+                        alt="${post.title}"
+                        class="post-card-image"
+                    >
+                `
+                : `
+                    <div class="post-card-image no-image">
+                        Mini Blog
+                    </div>
+                `;
 
 
-        card.className =
-            "dashboard-post-card";
+            return `
+                <article class="post-card">
+
+                    ${imageHTML}
+
+                    <div class="post-card-content">
+
+                        <span class="post-category">
+                            ${post.category}
+                        </span>
+
+                        <h2>
+                            ${post.title}
+                        </h2>
+
+                        <p>
+                            ${post.content.substring(0, 120)}
+                            ${post.content.length > 120 ? "..." : ""}
+                        </p>
+
+                        <span class="status-badge ${statusClass}">
+                            ${post.status}
+                        </span>
+
+                        <div class="dashboard-actions">
+
+                            ${
+                                post.status === "published"
+                                    ? `
+                                        <a
+                                            href="post.html?id=${post._id}"
+                                            class="btn btn-primary"
+                                        >
+                                            View
+                                        </a>
+                                    `
+                                    : ""
+                            }
+
+                            <a
+                                href="edit-post.html?id=${post._id}"
+                                class="btn btn-secondary"
+                            >
+                                Edit
+                            </a>
+
+                            <button
+                                class="btn btn-danger delete-post-btn"
+                                data-id="${post._id}"
+                            >
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+            `;
+
+        }).join("");
 
 
-        const statusClass =
-            post.status === "published"
-                ? "status-published"
-                : "status-draft";
+    // Delete buttons
+
+    const deleteButtons =
+        container.querySelectorAll(
+            ".delete-post-btn"
+        );
 
 
-        const statusText =
-            post.status === "published"
-                ? "Published"
-                : "Draft";
-
-
-        card.innerHTML = `
-
-            <h3>
-                ${post.title}
-            </h3>
-
-            <span
-                class="post-status ${statusClass}"
-            >
-                ${statusText}
-            </span>
-
-            <p>
-                ${getShortContent(post.content)}
-            </p>
-
-            <p>
-                <strong>Category:</strong>
-                ${post.category}
-            </p>
-
-            <div class="dashboard-actions">
-
-                <a
-                    href="edit-post.html?id=${post._id}"
-                    class="edit-btn"
-                >
-                    Edit
-                </a>
-
-                ${
-                    post.status === "published"
-                    ? `
-                        <a
-                            href="post.html?id=${post._id}"
-                            class="btn btn-secondary"
-                        >
-                            View
-                        </a>
-                    `
-                    : ""
-                }
-
-                <button
-                    class="delete-btn"
-                    onclick="deletePost('${post._id}')"
-                >
-                    Delete
-                </button>
-
-            </div>
-
-        `;
-
-
-        container.appendChild(card);
-
-    });
-
-}
-
-
-// ==========================================
-// DASHBOARD FILTER BUTTONS
-// ==========================================
-
-const filterButtons =
-    document.querySelectorAll(
-        ".filter-btn"
-    );
-
-
-if (filterButtons.length > 0) {
-
-    filterButtons.forEach(button => {
+    deleteButtons.forEach(button => {
 
         button.addEventListener(
             "click",
-            () => {
+            async () => {
 
-                filterButtons.forEach(btn => {
+                const postId =
+                    button.dataset.id;
 
-                    btn.classList.remove(
-                        "active"
+
+                const confirmed =
+                    confirm(
+                        "Are you sure you want to delete this post?"
                     );
 
-                });
+
+                if (!confirmed) return;
 
 
-                button.classList.add(
-                    "active"
-                );
+                try {
+
+                    const response =
+                        await fetch(
+                            `${POSTS_API}/${postId}`,
+                            {
+
+                                method: "DELETE",
+
+                                headers: {
+
+                                    "Authorization":
+                                        `Bearer ${getToken()}`
+                                }
+
+                            }
+                        );
 
 
-                const filter =
-                    button.dataset.filter;
+                    const data =
+                        await response.json();
 
 
-                filterDashboardPosts(
-                    filter
-                );
+                    if (!response.ok) {
+
+                        alert(
+                            data.message ||
+                            "Failed to delete post."
+                        );
+
+                        return;
+                    }
+
+
+                    alert(
+                        "Post deleted successfully!"
+                    );
+
+
+                    loadMyPosts();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Delete Post Error:",
+                        error
+                    );
+
+                    alert(
+                        "Unable to connect to server."
+                    );
+                }
 
             }
         );
@@ -1529,174 +1284,153 @@ if (filterButtons.length > 0) {
 }
 
 
-// ==========================================
-// FILTER DASHBOARD POSTS
-// ==========================================
+// ===============================
+// DASHBOARD FILTER
+// ===============================
 
-function filterDashboardPosts(filter) {
-
-    let filteredPosts =
-        dashboardPosts;
-
-
-    if (filter === "published") {
-
-        filteredPosts =
-            dashboardPosts.filter(
-                post =>
-                    post.status === "published"
-            );
-
-    }
-
-
-    if (filter === "draft") {
-
-        filteredPosts =
-            dashboardPosts.filter(
-                post =>
-                    post.status === "draft"
-            );
-
-    }
-
-
-    displayDashboardPosts(
-        filteredPosts
+const filterButtons =
+    document.querySelectorAll(
+        ".filter-btn"
     );
 
-}
+
+filterButtons.forEach(button => {
+
+    button.addEventListener(
+        "click",
+        async () => {
+
+            filterButtons.forEach(btn => {
+
+                btn.classList.remove(
+                    "active"
+                );
+
+            });
 
 
-// ==========================================
-// DELETE POST
-// ==========================================
-
-async function deletePost(postId) {
-
-    const token =
-        getAuthToken();
+            button.classList.add("active");
 
 
-    if (!token) {
-
-        alert(
-            "Please login first."
-        );
-
-        return;
-    }
+            const filter =
+                button.dataset.filter;
 
 
-    const confirmDelete =
-        confirm(
-            "Are you sure you want to delete this post?"
-        );
+            const postsContainer =
+                document.getElementById(
+                    "myPostsContainer"
+                );
 
 
-    if (!confirmDelete) {
-        return;
-    }
+            if (!postsContainer) return;
 
 
-    try {
+            try {
 
-        const response =
-            await fetch(
-                `${POSTS_API}/${postId}`,
-                {
+                const response =
+                    await fetch(
+                        `${POSTS_API}/my-posts`,
+                        {
 
-                    method: "DELETE",
+                            headers: {
 
-                    headers: {
-                        "Authorization":
-                            `Bearer ${token}`
-                    }
+                                "Authorization":
+                                    `Bearer ${getToken()}`
+                            }
 
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        "Failed to load posts."
+                    );
                 }
-            );
 
 
-        const data =
-            await response.json();
+                let filteredPosts =
+                    data.posts;
 
 
-        if (!response.ok) {
+                if (filter === "published") {
 
-            alert(
-                data.message ||
-                "Failed to delete post."
-            );
+                    filteredPosts =
+                        data.posts.filter(
+                            post =>
+                                post.status ===
+                                "published"
+                        );
+                }
 
-            return;
+
+                if (filter === "draft") {
+
+                    filteredPosts =
+                        data.posts.filter(
+                            post =>
+                                post.status ===
+                                "draft"
+                        );
+                }
+
+
+                if (filteredPosts.length === 0) {
+
+                    postsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <h2>No posts found</h2>
+                            <p>
+                                No ${filter} posts available.
+                            </p>
+                        </div>
+                    `;
+
+                    return;
+                }
+
+
+                displayDashboardPosts(
+                    filteredPosts,
+                    postsContainer
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Dashboard Filter Error:",
+                    error
+                );
+            }
+
         }
+    );
+
+});
 
 
-        alert(
-            "Post deleted successfully!"
-        );
+// ===============================
+// AUTO LOAD
+// ===============================
 
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-        loadDashboardPosts();
+        loadPosts();
 
+        loadSinglePost();
 
-    } catch (error) {
+        loadEditPost();
 
-        console.error(
-            "Delete Error:",
-            error
-        );
-
-
-        alert(
-            "Unable to delete post."
-        );
+        loadMyPosts();
 
     }
-
-}
-
-
-// ==========================================
-// START HOME PAGE
-// ==========================================
-
-if (
-    document.getElementById(
-        "postsContainer"
-    )
-) {
-
-    loadPosts();
-
-}
-
-
-// ==========================================
-// START SINGLE POST PAGE
-// ==========================================
-
-if (
-    document.getElementById(
-        "singlePost"
-    )
-) {
-
-    loadSinglePost();
-
-}
-
-
-// ==========================================
-// START DASHBOARD
-// ==========================================
-
-if (
-    document.getElementById(
-        "myPostsContainer"
-    )
-) {
-
-    loadDashboardPosts();
-
-}
+);
