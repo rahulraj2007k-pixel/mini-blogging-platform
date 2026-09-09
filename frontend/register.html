@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register - Mini Blog</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+    <header class="navbar">
+
+        <div class="container nav-container">
+
+            <a href="index.html" class="logo">
+                Mini Blog
+            </a>
+
+            <nav class="nav-links">
+
+                <a href="index.html">Home</a>
+
+                <a href="login.html">Login</a>
+
+                <a href="register.html">Register</a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         REGISTER SECTION
+    ========================== -->
+    <main>
+
+        <section class="form-section">
+
+            <div class="form-container">
+
+                <h1>Create Account</h1>
+
+                <p class="form-subtitle">
+                    Register to start publishing your blogs.
+                </p>
+
+
+                <!-- Register Form -->
+                <form id="registerForm">
+
+                    <!-- Name -->
+                    <div class="form-group">
+
+                        <label for="name">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="Enter your full name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Email -->
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter password"
+                            minlength="6"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Register
+                    </button>
+
+                </form>
+
+
+                <!-- Message -->
+                <p id="registerMessage"></p>
+
+
+                <!-- Login Link -->
+                <p class="form-footer">
+
+                    Already have an account?
+
+                    <a href="login.html">
+                        Login here
+                    </a>
+
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+
+        <div class="container">
+
+            <p>
+                © 2026 Mini Blogging Platform
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- JavaScript -->
+    <script src="js/auth.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Blog Post - Mini Blog</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+    <header class="navbar">
+
+        <div class="container nav-container">
+
+            <a href="index.html" class="logo">
+                Mini Blog
+            </a>
+
+            <nav class="nav-links">
+
+                <a href="index.html">
+                    Home
+                </a>
+
+                <a href="dashboard.html">
+                    Dashboard
+                </a>
+
+                <a href="create-post.html">
+                    Create Post
+                </a>
+
+                <button id="logoutBtn" class="logout-btn">
+                    Logout
+                </button>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         BLOG POST
+    ========================== -->
+    <main>
+
+        <section class="single-post-section">
+
+            <div class="container">
+
+                <!-- Loading -->
+                <p id="postLoading">
+                    Loading blog...
+                </p>
+
+
+                <!-- Error -->
+                <p
+                    id="postError"
+                    class="error-message"
+                ></p>
+
+
+                <!-- Blog Content -->
+                <article
+                    id="singlePost"
+                    class="single-post"
+                >
+
+                    <!-- Featured Image -->
+                    <img
+                        id="postImage"
+                        class="single-post-image"
+                        src=""
+                        alt="Blog Featured Image"
+                    >
+
+
+                    <!-- Category -->
+                    <span
+                        id="postCategory"
+                        class="post-category"
+                    ></span>
+
+
+                    <!-- Title -->
+                    <h1 id="postTitle"></h1>
+
+
+                    <!-- Author Information -->
+                    <div class="author-info">
+
+                        <div class="author-details">
+
+                            <strong>
+                                Author
+                            </strong>
+
+                            <span id="postAuthor"></span>
+
+                            <span id="postAuthorEmail"></span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Date -->
+                    <p
+                        id="postDate"
+                        class="post-date"
+                    ></p>
+
+
+                    <!-- Content -->
+                    <div
+                        id="postContent"
+                        class="post-content"
+                    ></div>
+
+                </article>
+
+
+                <!-- =========================
+                     COMMENTS
+                ========================== -->
+                <section class="comments-section">
+
+                    <h2>
+                        Comments
+                    </h2>
+
+
+                    <!-- Add Comment -->
+                    <div
+                        id="commentFormContainer"
+                        class="comment-form-container"
+                    >
+
+                        <form id="commentForm">
+
+                            <div class="form-group">
+
+                                <label for="commentText">
+                                    Write a comment
+                                </label>
+
+                                <textarea
+                                    id="commentText"
+                                    rows="4"
+                                    placeholder="Write your comment..."
+                                    required
+                                ></textarea>
+
+                            </div>
+
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+                                Add Comment
+                            </button>
+
+                        </form>
+
+                        <p id="commentMessage"></p>
+
+                    </div>
+
+
+                    <!-- Login message -->
+                    <p
+                        id="loginCommentMessage"
+                        class="comment-login-message"
+                    >
+                        Please login to add a comment.
+                    </p>
+
+
+                    <!-- Comments List -->
+                    <div
+                        id="commentsContainer"
+                        class="comments-list"
+                    ></div>
+
+
+                    <!-- No comments -->
+                    <p
+                        id="noCommentsMessage"
+                        class="no-comments-message"
+                    >
+                        No comments yet. Be the first to comment!
+                    </p>
+
+                </section>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+
+        <div class="container">
+
+            <p>
+                © 2026 Mini Blogging Platform
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+    <script src="js/auth.js"></script>
+    <script src="js/posts.js"></script>
+
+</body>
+
+</html>

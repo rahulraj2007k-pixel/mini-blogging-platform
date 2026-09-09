@@ -1,0 +1,246 @@
+ <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - Mini Blog</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- ==========================================
+         NAVBAR
+    =========================================== -->
+
+    <nav class="navbar">
+
+        <div class="container nav-container">
+
+            <a href="index.html" class="logo">
+                Mini Blog
+            </a>
+
+            <div class="nav-links">
+
+                <a href="index.html">
+                    Home
+                </a>
+
+                <a href="dashboard.html">
+                    Dashboard
+                </a>
+
+                <a href="create-post.html">
+                    Create Post
+                </a>
+
+                <a href="login.html" id="loginLink" style="display: none;">
+                    Login
+                </a>
+
+                <a href="register.html" id="registerLink" style="display: none;">
+                    Register
+                </a>
+
+                <button id="logoutBtn" class="logout-btn">
+                    Logout
+                </button>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ==========================================
+         DASHBOARD SECTION
+    =========================================== -->
+
+    <section class="dashboard-section">
+
+        <div class="container">
+
+
+            <!-- Dashboard Header -->
+
+            <div class="dashboard-header">
+
+                <div>
+
+                    <h1>
+                        My Dashboard
+                    </h1>
+
+                    <p>
+                        Welcome,
+                        <strong id="userName">
+                            User
+                        </strong>
+                    </p>
+
+                </div>
+
+
+                <a href="create-post.html" class="btn btn-primary">
+                    + Create New Post
+                </a>
+
+            </div>
+
+
+            <!-- ==================================
+                 PROFILE CARD
+            =================================== -->
+
+            <div class="user-info-card">
+
+                <h2>
+                    My Profile
+                </h2>
+
+                <p>
+                    <strong>Name:</strong>
+                    <span id="profileName">
+                        Loading...
+                    </span>
+                </p>
+
+                <p>
+                    <strong>Email:</strong>
+                    <span id="profileEmail">
+                        Loading...
+                    </span>
+                </p>
+
+            </div>
+
+
+            <!-- ==================================
+                 POST FILTERS
+            =================================== -->
+
+            <div class="dashboard-filters">
+
+                <button
+                    class="filter-btn active"
+                    data-filter="all">
+                    All Posts
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="published">
+                    Published
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="draft">
+                    Drafts
+                </button>
+
+            </div>
+
+
+            <!-- ==================================
+                 LOADING MESSAGE
+            =================================== -->
+
+            <p
+                id="dashboardLoading"
+                style="display: none;">
+                Loading your posts...
+            </p>
+
+
+            <!-- ==================================
+                 ERROR MESSAGE
+            =================================== -->
+
+            <p
+                id="dashboardError"
+                class="error-message">
+            </p>
+
+
+            <!-- ==================================
+                 POSTS CONTAINER
+            =================================== -->
+
+            <div
+                id="myPostsContainer"
+                class="dashboard-posts">
+            </div>
+
+
+            <!-- ==================================
+                 NO POSTS
+            =================================== -->
+
+            <div
+                id="noMyPosts"
+                class="empty-state"
+                style="display: none;">
+
+                <h2>
+                    No posts yet
+                </h2>
+
+                <p>
+                    You haven't created any blog posts.
+                </p>
+
+                <a
+                    href="create-post.html"
+                    class="btn btn-primary">
+                    Create Your First Post
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         FOOTER
+    =========================================== -->
+
+    <footer class="footer">
+
+        <div class="container">
+
+            <p>
+                © 2026 Mini Blogging Platform
+            </p>
+
+            <p>
+                Built with HTML, CSS, JavaScript,
+                Node.js, Express & MongoDB
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- ==========================================
+         JAVASCRIPT
+    =========================================== -->
+
+    <script src="js/auth.js"></script>
+
+    <script src="js/posts.js"></script>
+
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>

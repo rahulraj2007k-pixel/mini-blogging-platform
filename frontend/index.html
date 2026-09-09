@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mini Blogging Platform</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+    <header class="navbar">
+
+        <div class="container nav-container">
+
+            <a href="index.html" class="logo">
+                Mini Blog
+            </a>
+
+            <nav class="nav-links">
+
+                <a href="index.html">Home</a>
+
+                <a href="dashboard.html" id="dashboardLink">
+                    Dashboard
+                </a>
+
+                <a href="create-post.html" id="createPostLink">
+                    Create Post
+                </a>
+
+                <a href="login.html" id="loginLink">
+                    Login
+                </a>
+
+                <a href="register.html" id="registerLink">
+                    Register
+                </a>
+
+                <button id="logoutBtn" class="logout-btn">
+                    Logout
+                </button>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+    <main>
+
+        <!-- HERO SECTION -->
+        <section class="hero">
+
+            <div class="container">
+
+                <h1>Welcome to Mini Blog</h1>
+
+                <p>
+                    Share your thoughts, ideas and stories with the world.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             SEARCH & FILTER
+        ========================== -->
+        <section class="search-section">
+
+            <div class="container">
+
+                <div class="search-box">
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search blogs by title or keyword..."
+                    >
+
+                    <button id="searchBtn">
+                        Search
+                    </button>
+
+                </div>
+
+
+                <div class="category-filter">
+
+                    <label for="categorySelect">
+                        Category:
+                    </label>
+
+                    <select id="categorySelect">
+
+                        <option value="">
+                            All Categories
+                        </option>
+
+                        <option value="Technology">
+                            Technology
+                        </option>
+
+                        <option value="Education">
+                            Education
+                        </option>
+
+                        <option value="Programming">
+                            Programming
+                        </option>
+
+                        <option value="Lifestyle">
+                            Lifestyle
+                        </option>
+
+                        <option value="Travel">
+                            Travel
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             BLOG POSTS
+        ========================== -->
+        <section class="posts-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <h2>Latest Blogs</h2>
+
+                </div>
+
+
+                <!-- Loading message -->
+                <p id="loadingMessage">
+                    Loading blogs...
+                </p>
+
+
+                <!-- Error message -->
+                <p id="errorMessage" class="error-message"></p>
+
+
+                <!-- Blog cards will be added using JavaScript -->
+                <div
+                    id="postsContainer"
+                    class="posts-grid"
+                ></div>
+
+
+                <!-- No posts message -->
+                <p
+                    id="noPostsMessage"
+                    class="no-posts-message"
+                >
+                    No blogs found.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+
+        <div class="container">
+
+            <p>
+                © 2026 Mini Blogging Platform
+            </p>
+
+            <p>
+                Built with HTML, CSS, JavaScript, Node.js, Express & MongoDB
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script src="js/auth.js"></script>
+    <script src="js/posts.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+</html>
